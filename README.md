@@ -1,4 +1,4 @@
-# 🚀 BenchmarkerPDC - Advanced CPU Performance Benchmarking Suite
+# 🚀 PerfBench - Advanced CPU Performance Benchmarking Suite
 
 [![.NET](https://img.shields.io/badge/.NET-8.0-blue.svg)](https://dotnet.microsoft.com/download/dotnet/8.0)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -35,8 +35,8 @@ The project consists of two main components:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/BenchmarkerPDC.git
-   cd BenchmarkerPDC
+   git clone https://github.com/Tuhin-SnapD/PerfBench.git
+   cd PerfBench
    ```
 
 2. **Build the project**
@@ -161,7 +161,7 @@ The project consists of two main components:
 
 ### Project Structure
 ```
-BenchmarkerPDC/
+PerfBench/
 ├── Benchmarker/           # Main executable application
 ├── Benchmarking/          # Core benchmarking engine
 ├── docs/                 # Documentation and web interface
@@ -223,9 +223,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/BenchmarkerPDC/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/BenchmarkerPDC/discussions)
-- **Documentation**: [Wiki](https://github.com/yourusername/BenchmarkerPDC/wiki)
+- **Issues**: [GitHub Issues](https://github.com/Tuhin-SnapD/PerfBench/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Tuhin-SnapD/PerfBench/discussions)
+- **Documentation**: [Wiki](https://github.com/Tuhin-SnapD/PerfBench/wiki)
 
 ## 🔄 Changelog
 
