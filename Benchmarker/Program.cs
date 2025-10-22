@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using CommandLine;
 using Benchmarking;
 using Benchmarking.Results;
 using Benchmarking.Util;
@@ -68,7 +69,20 @@ namespace Benchmarker
 			}
 
 #else
-            arguments = new Arguments {Benchmark = "parsing"};
+            // Parse command line arguments properly
+            var parseResult = Parser.Default.ParseArguments<Arguments>(args);
+            
+            parseResult.WithParsed(parsedArgs => arguments = parsedArgs);
+            parseResult.WithNotParsed(errors => 
+            {
+                Console.WriteLine("Error parsing arguments:");
+                foreach (var error in errors)
+                {
+                    Console.WriteLine($"  {error}");
+                }
+                Console.WriteLine();
+                Console.WriteLine("Use --help for usage information.");
+            });
 #endif
 
             return OptionParser.ParseOptions(arguments);
@@ -165,7 +179,7 @@ namespace Benchmarker
             try
             {
                 // Check if we have a valid console before creating the progress bar
-                if (Console.IsOutputRedirected || !Console.IsOutputRedirected && Console.LargestWindowWidth > 0)
+                if (!Console.IsOutputRedirected && Console.LargestWindowWidth > 0)
                 {
                     pbar = new ProgressBar(totalTime,
                         $"Running Benchmark {options.Benchmark} on {options.Threads} threads {options.Runs} times",

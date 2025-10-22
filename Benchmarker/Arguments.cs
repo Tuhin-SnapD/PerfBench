@@ -46,7 +46,7 @@ namespace Benchmarker
             HelpText = "Disables the progress bar. May improve performance in multiThreaded benchmarks.")]
         public bool DisableProgressBar { get; set; }
         
-        [Option('w', "warmup", Default = 0, HelpText = "Runs the benchmark in warmup for x seconds to pre-heat watercooling systems or so.")]
-        public uint WarmupTime { get; set; }
+        [Option('w', "warmup", Default = 0u, HelpText = "Runs the benchmark in warmup for x seconds to pre-heat watercooling systems or so.")]
+        public uint WarmupTime { get; set; } = 0u;
     }
 }
