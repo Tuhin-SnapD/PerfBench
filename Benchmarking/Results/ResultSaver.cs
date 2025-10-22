@@ -38,16 +38,31 @@ namespace Benchmarking.Results
         {
             var settings = new JsonSerializerSettings
             {
-                ContractResolver = new PrivateSetterContractResolver()
+                ContractResolver = new PrivateSetterContractResolver(),
+                Error = (sender, args) =>
+                {
+                    Console.WriteLine($"JSON Deserialization Error: {args.ErrorContext.Error.Message}");
+                    args.ErrorContext.Handled = true;
+                }
             };
 
             foreach (var saveFile in Directory.GetFiles(SAVE_DIRECTORY, "*.json"))
             {
-                using var stream = File.OpenRead(saveFile);
-                using var sr = new StreamReader(stream);
-                var save = JsonConvert.DeserializeObject<Save>(sr.ReadToEnd(), settings)!;
+                try
+                {
+                    using var stream = File.OpenRead(saveFile);
+                    using var sr = new StreamReader(stream);
+                    var save = JsonConvert.DeserializeObject<Save>(sr.ReadToEnd(), settings);
 
-                saves.Add(save);
+                    if (save != null)
+                    {
+                        saves.Add(save);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to load save file {saveFile}: {ex.Message}");
+                }
             }
         }
 
@@ -60,6 +75,14 @@ namespace Benchmarking.Results
 
             currentSave = null;
 
+            var settings = new JsonSerializerSettings
+            {
+                ContractResolver = new PrivateSetterContractResolver(),
+                Formatting = Formatting.Indented,
+                NullValueHandling = NullValueHandling.Ignore,
+                DefaultValueHandling = DefaultValueHandling.Ignore
+            };
+
             foreach (var save in saves)
             {
                 var saveFile = $"{SAVE_DIRECTORY}/{save.Created}.json";
@@ -68,7 +91,7 @@ namespace Benchmarking.Results
                 {
                     using var stream = File.OpenWrite(saveFile);
                     using var sw = new StreamWriter(stream);
-                    sw.Write(JsonConvert.SerializeObject(save));
+                    sw.Write(JsonConvert.SerializeObject(save, settings));
                 }
             }
         }

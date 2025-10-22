@@ -160,21 +160,77 @@ namespace Benchmarker
                 ProgressBarOnBottom = true,
                 CollapseWhenFinished = false
             };
-            using var pbar = new ProgressBar(totalTime,
-                $"Running Benchmark {options.Benchmark} on {options.Threads} threads {options.Runs} times",
-                poptions);
+
+            ProgressBar? pbar = null;
+            try
+            {
+                // Check if we have a valid console before creating the progress bar
+                if (Console.IsOutputRedirected || !Console.IsOutputRedirected && Console.LargestWindowWidth > 0)
+                {
+                    pbar = new ProgressBar(totalTime,
+                        $"Running Benchmark {options.Benchmark} on {options.Threads} threads {options.Runs} times",
+                        poptions);
+                }
+            }
+            catch (System.IO.IOException)
+            {
+                // Console handle is invalid, fall back to simple text output
+                Console.WriteLine("Progress tracking unavailable (console redirection detected)");
+                pbar = null;
+            }
+            catch (System.Exception)
+            {
+                // Any other console-related error, fall back to simple text output
+                Console.WriteLine("Progress tracking unavailable");
+                pbar = null;
+            }
+
             var sw = Stopwatch.StartNew();
 
             while (!ct.IsCancellationRequested)
             {
-                pbar.Tick((int) sw.ElapsedMilliseconds,
-                    TimeSpan.FromMilliseconds(totalTime - sw.ElapsedMilliseconds),
-                    $"Overall. Currently running {runner.CurrentBenchmark} on {options.Threads} threads {options.Runs} times");
+                if (pbar != null)
+                {
+                    try
+                    {
+                        pbar.Tick((int) sw.ElapsedMilliseconds,
+                            TimeSpan.FromMilliseconds(totalTime - sw.ElapsedMilliseconds),
+                            $"Overall. Currently running {runner.CurrentBenchmark} on {options.Threads} threads {options.Runs} times");
+                    }
+                    catch (System.IO.IOException)
+                    {
+                        // Console handle became invalid during execution
+                        pbar?.Dispose();
+                        pbar = null;
+                        Console.WriteLine("Progress tracking stopped (console redirection detected)");
+                    }
+                }
+                else
+                {
+                    // Fallback: simple text output every 5 seconds
+                    if (sw.ElapsedMilliseconds % 5000 < 200)
+                    {
+                        var elapsed = TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds);
+                        var remaining = TimeSpan.FromMilliseconds(Math.Max(0, totalTime - sw.ElapsedMilliseconds));
+                        Console.WriteLine($"Progress: {elapsed:mm\\:ss} elapsed, {remaining:mm\\:ss} remaining - Currently running {runner.CurrentBenchmark}");
+                    }
+                }
 
                 Thread.Sleep(200);
             }
 
-            pbar.Tick(totalTime);
+            try
+            {
+                pbar?.Tick(totalTime);
+            }
+            catch (System.IO.IOException)
+            {
+                // Ignore errors when finishing the progress bar
+            }
+            finally
+            {
+                pbar?.Dispose();
+            }
         }
     }
 }

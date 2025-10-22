@@ -34,7 +34,7 @@
 				{
 					object value = valueSelectors[colIndex].Invoke(values[rowIndex - 1]);
 
-					arrValues[rowIndex, colIndex] = value != null ? value.ToString() : "null";
+					arrValues[rowIndex, colIndex] = value?.ToString() ?? "null";
 				}
 			}
 
@@ -95,24 +95,24 @@
 
 		public static string ToStringTable<T>(this IEnumerable<T> values, params Expression<Func<T, object>>[] valueSelectors)
 		{
-			var headers = valueSelectors.Select(func => GetProperty(func).Name).ToArray();
+			var headers = valueSelectors.Select(func => GetProperty(func)?.Name ?? "Unknown").ToArray();
 			var selectors = valueSelectors.Select(exp => exp.Compile()).ToArray();
 			return ToStringTable(values, headers, selectors);
 		}
 
-		private static PropertyInfo GetProperty<T>(Expression<Func<T, object>> expresstion)
+		private static PropertyInfo? GetProperty<T>(Expression<Func<T, object>> expresstion)
 		{
-			if (expresstion.Body is UnaryExpression)
+			if (expresstion.Body is UnaryExpression unaryExpression)
 			{
-				if ((expresstion.Body as UnaryExpression).Operand is MemberExpression)
+				if (unaryExpression.Operand is MemberExpression memberExpression)
 				{
-					return ((expresstion.Body as UnaryExpression).Operand as MemberExpression).Member as PropertyInfo;
+					return memberExpression.Member as PropertyInfo;
 				}
 			}
 
-			if ((expresstion.Body is MemberExpression))
+			if (expresstion.Body is MemberExpression memberExpression2)
 			{
-				return (expresstion.Body as MemberExpression).Member as PropertyInfo;
+				return memberExpression2.Member as PropertyInfo;
 			}
 			return null;
 		}
